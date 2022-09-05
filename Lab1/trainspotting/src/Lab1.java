@@ -6,10 +6,16 @@ public class Lab1 {
     TSimInterface tsi = TSimInterface.getInstance();
 
     try {
-      tsi.setSpeed(1,speed1);
-      tsi.setSpeed(2,speed2);
+
+      Train train1 = new Train(1, speed1);
+      Train train2 = new Train(2, speed2);
+
+      train1.start();
+      train2.start();
+
+      //tsi.setSpeed(2,speed2);
     }
-    catch (CommandException e) {
+    catch (Exception e) {
       e.printStackTrace();    // or only e.getMessage() for the error
       System.exit(1);
     }
