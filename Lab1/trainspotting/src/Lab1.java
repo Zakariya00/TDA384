@@ -18,8 +18,10 @@ public class Lab1 {
       train1.start();
       train2.start();
 
-      tsi.setSwitch(17,7,0);
-      tsi.setSwitch(15,9,0);
+      //tsi.setSwitch(17,7,0); //Points up with 0
+      //tsi.setSwitch(15,9,0); //Points up with 0
+      //tsi.setSwitch(4,9,1); //Points up with 1
+      //tsi.setSwitch(3,11,1); //Points up with 1
 
       //tsi.setSpeed(2,speed2);
     }
@@ -33,5 +35,12 @@ public class Lab1 {
     semaphores.put("stat_A2", new Semaphore(1));
     semaphores.put("stat_B1", new Semaphore(1));
     semaphores.put("stat_B2", new Semaphore(1));
+
+    semaphores.put("crossing", new Semaphore(1));
+    semaphores.put("track_A", new Semaphore(1));
+    semaphores.put("track_B", new Semaphore(1));
+
+    semaphores.put("track_B1", new Semaphore(1));
+    semaphores.put("track_B2", new Semaphore(1));
   }
 }
