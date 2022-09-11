@@ -204,15 +204,17 @@ public class Train extends Thread {
     }
     private void singleTrack (String semName) throws InterruptedException, CommandException {
         quickStop();
-        while (!semAcq(semName))
-            sleep(250);
+        //while (!semAcq(semName))
+          //  sleep(250);
+        semAcqUninterruptibly(semName);
         switchSet(semName);
         quickStart();
     }
     private void theCrossing () throws CommandException, InterruptedException {
         quickStop();
-        while (!semAcq("crossing"))
-            sleep(250);
+        //while (!semAcq("crossing"))
+          //  sleep(250);
+        semAcqUninterruptibly("crossing");
         quickStart();
     }
 
@@ -252,7 +254,11 @@ public class Train extends Thread {
             this.direction = Direction.A_B;
     }
 
-
+    private void semAcqUninterruptibly (String semName) {
+        semaphores.get(semName).acquireUninterruptibly();
+        System.out.println("" + semName + " acquired");
+        mySemaphores.add(semaphores.get(semName)); // test
+    }
     private boolean semAcq (String semName) {
         if (semaphores.get(semName).tryAcquire()) {
             System.out.println("" + semName + " acquired");
