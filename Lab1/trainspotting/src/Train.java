@@ -19,6 +19,7 @@ public class Train extends Thread {
     private int lastX;
     private int lastY;
 
+
     public Train (int id, int speed, HashMap<String, Semaphore> semaphores, String startStation)  {
         this.id = id;
         this.speed = speed;
@@ -41,6 +42,8 @@ public class Train extends Thread {
             System.exit(1);
         }
     }
+
+
 
     public void processTrain (SensorEvent event) throws CommandException, InterruptedException {
         int x = event.getXpos();
@@ -127,6 +130,7 @@ public class Train extends Thread {
         }
     }
 
+
     private void switchSet (String semName) throws CommandException {
         if (direction == Direction.A_B)
             switch4AB(semName);
@@ -185,6 +189,7 @@ public class Train extends Thread {
             tsi.setSwitch(17, 7, 1);
     }
 
+
     private String multiTrack (String semName1, String semName2) throws CommandException {
         quickStop();
         if (!semAcq(semName1)) {
@@ -211,6 +216,7 @@ public class Train extends Thread {
         quickStart();
     }
 
+
     public void startProtocol () throws CommandException {
         tsi.setSpeed(this.id, this.speed);
         System.out.println("" + this.id + " Started" );
@@ -227,6 +233,10 @@ public class Train extends Thread {
         startProtocol();
     }
 
+    public void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
+    public void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
+
+
     public void initalDir () {
         if ( (this.startStation.equals("stat_A1")) || (this.startStation.equals("stat_A2")) ) {
             this.direction = Direction.A_B;
@@ -242,8 +252,6 @@ public class Train extends Thread {
             this.direction = Direction.A_B;
     }
 
-    public void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
-    public void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
 
     private boolean semAcq (String semName) {
         if (semaphores.get(semName).tryAcquire()) {
