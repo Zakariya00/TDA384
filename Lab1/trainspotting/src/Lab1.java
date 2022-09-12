@@ -32,15 +32,18 @@ public class Lab1 {
     }
   }
   public void putSemaphores() {
+    // Stations [Double Track]
     semaphores.put("stat_A1", new Semaphore(1));
     semaphores.put("stat_A2", new Semaphore(1));
     semaphores.put("stat_B1", new Semaphore(1));
     semaphores.put("stat_B2", new Semaphore(1));
 
+    // Single Track
     semaphores.put("crossing", new Semaphore(1));
     semaphores.put("track_A", new Semaphore(1));
     semaphores.put("track_B", new Semaphore(1));
 
+    // Double Track
     semaphores.put("track_B1", new Semaphore(1));
     semaphores.put("track_B2", new Semaphore(1));
   }

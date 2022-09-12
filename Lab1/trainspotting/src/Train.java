@@ -8,16 +8,16 @@ import java.util.concurrent.Semaphore;
 
 public class Train extends Thread {
     private TSimInterface tsi = TSimInterface.getInstance();
-    private HashMap<String, Semaphore> semaphores;
-    private ArrayList<Semaphore> mySemaphores = new ArrayList<>();
-    enum Direction { A_B, B_A}
+    private HashMap<String, Semaphore> semaphores;                   // The track Semaphores
+    private ArrayList<Semaphore> mySemaphores = new ArrayList<>();  // The semaphores the train is holding
+    enum Direction { A_B, B_A}                                     // Stations [A to B] or [B to A]
 
     private int id;
     private int speed;
     private String startStation;
     private Direction direction;
-    private int lastX;
-    private int lastY;
+    private int lastX;                                         // Updated with X-Pos of last affected sensor
+    private int lastY;                                        // Updated with X-Pos of last affected sensor
 
 
     public Train (int id, int speed, HashMap<String, Semaphore> semaphores, String startStation)  {
@@ -30,12 +30,12 @@ public class Train extends Thread {
     @Override
     public void run () {
         try {
-            semAcq(startStation);
-            initalDir();
-            startProtocol ();
+            semAcq(startStation); // Acquire the start Station
+            initalDir();         // Set the initial Direction
+            startProtocol ();   // Start the train
 
             while (true)
-              processTrain (tsi.getSensor(this.id));
+              processTrain (tsi.getSensor(this.id)); // Process sensor events for the specific train
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -43,9 +43,8 @@ public class Train extends Thread {
         }
     }
 
-
-
-    public void processTrain (SensorEvent event) throws CommandException, InterruptedException {
+    // Main method for handling the train, action taken based on what sensor train is affecting and current state
+    private void processTrain (SensorEvent event) throws CommandException, InterruptedException {
         int x = event.getXpos();
         int y = event.getYpos();
 
@@ -131,6 +130,37 @@ public class Train extends Thread {
     }
 
 
+    // Methods for Acquring tracks & calling the necessary functions for action
+    private void multiTrack (String semName1, String semName2) throws CommandException {
+        quickStop();
+        if (!semAcq(semName1)) {     // If can't acquire upper track
+            semAcq(semName2);       //  Acquire Lower Track
+            switchSet(semName2);
+            quickStart();
+            //return semName2;
+        } else {
+        switchSet(semName1);
+        quickStart();
+        //return semName1;
+        }
+    }
+    private void singleTrack (String semName) throws InterruptedException, CommandException {
+        quickStop();
+        //while (!semAcq(semName))
+        //  sleep(250);
+        semAcqUninterruptibly(semName);   // Blocks and waits if Semaphore is taken, until available again
+        switchSet(semName);
+        quickStart();
+    }
+    private void theCrossing () throws CommandException, InterruptedException {
+        quickStop();
+        //while (!semAcq("crossing"))
+        //  sleep(250);
+        semAcqUninterruptibly("crossing");   // Blocks and waits if Semaphore is taken, until available again
+        quickStart();
+    }
+
+    // Methods for setting switches based on Direction
     private void switchSet (String semName) throws CommandException {
         if (direction == Direction.A_B)
             switch4AB(semName);
@@ -189,41 +219,12 @@ public class Train extends Thread {
             tsi.setSwitch(17, 7, 1);
     }
 
-
-    private String multiTrack (String semName1, String semName2) throws CommandException {
-        quickStop();
-        if (!semAcq(semName1)) {
-            semAcq(semName2);
-            switchSet(semName2);
-            quickStart();
-            return semName2;
-        }
-        switchSet(semName1);
-        quickStart();
-        return semName1;
-    }
-    private void singleTrack (String semName) throws InterruptedException, CommandException {
-        quickStop();
-        //while (!semAcq(semName))
-          //  sleep(250);
-        semAcqUninterruptibly(semName);
-        switchSet(semName);
-        quickStart();
-    }
-    private void theCrossing () throws CommandException, InterruptedException {
-        quickStop();
-        //while (!semAcq("crossing"))
-          //  sleep(250);
-        semAcqUninterruptibly("crossing");
-        quickStart();
-    }
-
-
-    public void startProtocol () throws CommandException {
+    // Methods for Starting & Stopping on stations
+    private void startProtocol () throws CommandException {
         tsi.setSpeed(this.id, this.speed);
         System.out.println("" + this.id + " Started" );
     }
-    public void stopProtocol () throws CommandException, InterruptedException {
+    private void stopProtocol () throws CommandException, InterruptedException {
         tsi.setSpeed(this.id, 0);
         System.out.println("" + this.id + " Stopped" );
 
@@ -235,11 +236,12 @@ public class Train extends Thread {
         startProtocol();
     }
 
-    public void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
-    public void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
+    // Methods for Stopping & resuming the train
+    private void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
+    private void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
 
-
-    public void initalDir () {
+    // Methods for setting initial start direction & Switching direction at stations
+    private void initalDir () {
         if ( (this.startStation.equals("stat_A1")) || (this.startStation.equals("stat_A2")) ) {
             this.direction = Direction.A_B;
         }
@@ -247,13 +249,14 @@ public class Train extends Thread {
             this.direction = Direction.B_A;
         }
     }
-    public void switchDir () {
+    private void switchDir () {
         if (this.direction == Direction.A_B)
             this.direction = Direction.B_A;
         else
             this.direction = Direction.A_B;
     }
 
+    // Methods for Acquiring & Releasing Semaphores, also special blocking wait method for waiting on a semaphore
     private void semAcqUninterruptibly (String semName) {
         semaphores.get(semName).acquireUninterruptibly();
         System.out.println("" + semName + " acquired");
