@@ -43,6 +43,8 @@ public class Train extends Thread {
         }
     }
 
+
+
     // Main method for handling the train, action taken based on what sensor train is affecting and current state
     private void processTrain (SensorEvent event) throws CommandException, InterruptedException {
         int x = event.getXpos();
@@ -163,11 +165,13 @@ public class Train extends Thread {
     // Methods for setting switches based on Direction
     private void switchSet (String semName) throws CommandException {
         if (direction == Direction.A_B)
-            switch4AB(semName);
+            switch4AB(semName);  // Handles switches when going from A (upper stations) to B (lower stations)
         else
-            switch4BA(semName);
+            switch4BA(semName);  //Handles switches when going from B to A
     }
     private void switch4AB (String semName) throws CommandException {
+        // Sets switches based on the next track semaphore you acquired &
+        // The last sensor you affected
         if (semName.equals("track_A")) {
         if (lastX == 12 && lastY == 7)
             tsi.setSwitch(17, 7, 0);
@@ -194,6 +198,8 @@ public class Train extends Thread {
 
     }
     private void switch4BA (String semName) throws CommandException {
+        // Sets switches based on the next track semaphore you acquired &
+        // The last sensor you affected
         if (semName.equals("track_B")) {
             if (lastX == 5 && lastY == 11)
                 tsi.setSwitch(3, 11, 1);
@@ -219,26 +225,26 @@ public class Train extends Thread {
             tsi.setSwitch(17, 7, 1);
     }
 
+    // Methods for Stopping & resuming the train
+    private void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
+    private void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
+
     // Methods for Starting & Stopping on stations
     private void startProtocol () throws CommandException {
-        tsi.setSpeed(this.id, this.speed);
+        quickStart();
         System.out.println("" + this.id + " Started" );
     }
     private void stopProtocol () throws CommandException, InterruptedException {
-        tsi.setSpeed(this.id, 0);
+        quickStop();
         System.out.println("" + this.id + " Stopped" );
 
         int delay = 1000 + (20 * Math.abs(this.speed));
         this.speed = this.speed * -1;
         sleep(delay);
 
-        switchDir();
-        startProtocol();
+        switchDir();     // Switches to new Direction
+        startProtocol(); // starts the train back up after sleep
     }
-
-    // Methods for Stopping & resuming the train
-    private void quickStart () throws CommandException { tsi.setSpeed(this.id, this.speed);}
-    private void quickStop () throws CommandException { tsi.setSpeed(this.id, 0);}
 
     // Methods for setting initial start direction & Switching direction at stations
     private void initalDir () {
@@ -258,7 +264,7 @@ public class Train extends Thread {
 
     // Methods for Acquiring & Releasing Semaphores, also special blocking wait method for waiting on a semaphore
     private void semAcqUninterruptibly (String semName) {
-        semaphores.get(semName).acquireUninterruptibly();
+        semaphores.get(semName).acquireUninterruptibly(); // Blocks and Waits until Semaphore is available
         System.out.println("" + semName + " acquired");
         mySemaphores.add(semaphores.get(semName)); // test
     }
@@ -276,10 +282,10 @@ public class Train extends Thread {
         if (sem.availablePermits() > 0)
             return false;
         else
-        if (!mySemaphores.contains(sem))
+        if (!mySemaphores.contains(sem)) // Make sure I can only release Semaphores I'm holding
             return false;
             sem.release();
-        mySemaphores.remove(sem); // test
+        mySemaphores.remove(sem); // Remove from my collection of current semaphores I'm holding
         System.out.println("" + semName + " released");
         return true;
     }
