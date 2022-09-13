@@ -1,4 +1,4 @@
-import TSim.CommandException;
+/*import TSim.CommandException;
 import TSim.SensorEvent;
 import TSim.TSimInterface;
 
@@ -146,7 +146,7 @@ public class Train extends Thread {
         //return semName1;
         }
     }
-    private void singleTrack (String semName) throws InterruptedException, CommandException {
+    private void singleTrack (String semName) throws CommandException {
         quickStop();
         //while (!semAcq(semName))
         //  sleep(250);
@@ -154,7 +154,7 @@ public class Train extends Thread {
         switchSet(semName);
         quickStart();
     }
-    private void theCrossing () throws CommandException, InterruptedException {
+    private void theCrossing () throws CommandException {
         quickStop();
         //while (!semAcq("crossing"))
         //  sleep(250);
@@ -290,4 +290,6 @@ public class Train extends Thread {
         return true;
     }
 }
+
+ */
 
