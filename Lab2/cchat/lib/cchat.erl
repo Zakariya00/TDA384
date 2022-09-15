@@ -10,4 +10,3 @@ server() ->
 client() ->
     gui:start(?SERVERNAME).
 
-%my name is jeff!
