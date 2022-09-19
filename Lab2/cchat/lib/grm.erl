@@ -3,11 +3,12 @@
 %% @Author Alejandro Russo
 -module(grm).
 -export([parse/1, parse_and_scan/1, format_error/1]).
--file("grm.yrl", 44).
+-file("grm.yrl", 43).
+
 
 ff({_,_,Content}) -> Content.
 
--file("/chalmers/sw/sup64/erlang-24.0/lib/erlang/lib/parsetools-2.3/include/yeccpre.hrl", 0).
+-file("c:/Program Files/erl-24.0/lib/parsetools-2.3/include/yeccpre.hrl", 0).
 %%
 %% %CopyrightBegin%
 %%
@@ -177,7 +178,7 @@ yecctoken2string(Other) ->
 
 
 
--file("grm.erl", 180).
+-file("grm.erl", 181).
 
 -dialyzer({nowarn_function, yeccpars2/7}).
 yeccpars2(0=S, Cat, Ss, Stack, T, Ts, Tzr) ->
