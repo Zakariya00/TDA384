@@ -22,7 +22,7 @@ start(ServerAtom) ->
 % Stop the server process registered to the given name,
 % together with any other associated processes
 stop(ServerAtom) ->
-    genserver:request(ServerAtom, {termination}),
+    genserver:request(ServerAtom, {termination}), % send termination message to server to kill channels
     genserver:stop(ServerAtom).
 
 
@@ -38,7 +38,7 @@ updateNicks(St, Nick) ->
 updateChannel(St, Channel) ->
     case lists:member(Channel, St#server_st.channels) of
         true -> St#server_st.channels;
-        false -> channel:start(Channel),
+        false -> channel:start(Channel),     % start a new channel
             [Channel| St#server_st.channels]
     end.
 
@@ -67,7 +67,7 @@ handle(St, {nick, Old, New}) ->
 
 % Stop all Channels With The Server
 handle(St, {termination}) ->
-    [genserver:request(Channel, {terminate, Channel}) || Channel <- St#server_st.channels],
+    [genserver:request(Channel, {terminate, Channel}) || Channel <- St#server_st.channels], % Tell channels to terminate
     {reply, ok, []};
 
 % Catch-all for any unhandled requests

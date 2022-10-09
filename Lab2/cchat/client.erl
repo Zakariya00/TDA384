@@ -47,8 +47,8 @@ requesting(To, Content) ->
 % Join channel
 handle(St, {join, Channel}) ->
     case isAlive(St#client_st.server) of
-        true -> Reply = requesting(St#client_st.server, {join, self(), Channel, St#client_st.nick}),
-            case Reply of
+        true ->
+            case requesting(St#client_st.server, {join, self(), Channel, St#client_st.nick}) of
                 ok ->
                     Channels = [Channel| St#client_st.channels],
                     {reply, ok, St#client_st{channels = Channels}};
@@ -121,8 +121,8 @@ handle(St = #client_st{gui = GUI}, {message_receive, Channel, Nick, Msg}) ->
 
 % Quit client via GUI
 handle(St, quit) ->
-    [requesting(list_to_atom(Channel), {leave, self()}) || Channel <- St#client_st.channels],
-    requesting(St#client_st.server, {leave, St#client_st.nick}),
+    [requesting(list_to_atom(Channel), {leave, self()}) || Channel <- St#client_st.channels],  %tell your channels
+    requesting(St#client_st.server, {leave, St#client_st.nick}), % tell server
     {reply, ok, St};
 
 % Catch-all for any unhandled requests

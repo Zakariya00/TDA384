@@ -3,8 +3,7 @@
 
 -record(channel_st, {
   channel, % Channel atom
-  clients, % Client PIDs
-  server
+  clients % Client PIDs
 }).
 
 
@@ -35,7 +34,7 @@ handle(St, {leave, Client}) ->
   case lists:member(Client, St#channel_st.clients) of
     true -> {reply, ok, St#channel_st{clients = lists:delete(Client, St#channel_st.clients)}};
 
-    false -> {reply, user_not_joined}
+    false -> {reply, user_not_joined, St}
   end;
 
 % Client Message Sending
