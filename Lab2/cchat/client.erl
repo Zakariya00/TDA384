@@ -39,7 +39,9 @@ requesting(To, Content) ->
     try genserver:request(To, Content) of
         Received -> Received
     catch
-        error:_ -> {error, server_not_reached, "No response form Server!!!"}
+        error:_ -> {error, server_not_reached, "No response form Server!!!"};
+        exit:_ -> {error, server_not_reached, "No response form Server!!!"};
+        throw:_ -> {error, server_not_reached, "No response form Server!!!"}
     end .
 
 
@@ -57,7 +59,7 @@ handle(St, {join, Channel}) ->
                     {reply, {error, user_already_joined, "Already joined the channel!"}, St};
 
                 Failure ->
-                    {reply, {Failure}, St}
+                    {reply, Failure, St}
             end;
 
         false ->
@@ -86,7 +88,7 @@ handle(St, {message_send, Channel, Msg}) ->
 
         user_not_joined -> {reply, {error, user_not_joined, "Not in the channel stupid!!"}, St};
 
-        Error -> {reply, {Error}, St}
+        Error -> {reply, Error, St}
     end;
 
 
@@ -98,7 +100,7 @@ handle(St, {nick, NewNick}) ->
 
         nick_taken -> {reply, {error, nick_taken, "This Nick is taken!!"}, St};
 
-        Error -> {reply, {Error}, St}
+        Error -> {reply, Error, St}
     end;
 
 
