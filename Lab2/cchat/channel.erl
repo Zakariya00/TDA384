@@ -42,7 +42,7 @@ handle(St, {message_send, Client, Nick, Message}) ->
   case lists:member(Client, St#channel_st.clients) of
 
     true ->
-      [genserver:request(Receiver, {message_receive, St#channel_st.channel, Nick, Message}) ||
+      [Receiver!{request, self(), make_ref(), {message_receive, St#channel_st.channel, Nick, Message}} ||
                        Receiver <- lists:delete(Client, St#channel_st.clients)],
       {reply, ok, St};
 
@@ -51,9 +51,9 @@ handle(St, {message_send, Client, Nick, Message}) ->
   end;
 
 % Terminate the Channel
-handle(_, {termination, Channel}) ->
-  stop(Channel),
-  {reply, ok, []};
+%handle(_, {termination, Channel}) ->
+ % stop(Channel),
+ % {reply, ok, []};
 
 % Catch-all for any unhandled requests
 handle(St, _Data) ->

@@ -67,11 +67,11 @@ handle(St, {nick, Old, New}) ->
 
 % Stop all Channels With The Server
 handle(St, {termination}) ->
-    [genserver:request(Channel, {terminate, Channel}) || Channel <- St#server_st.channels], % Tell channels to terminate
+    %[Channel!{request, self(), make_ref(), {terminate, Channel}} || Channel <- St#server_st.channels], % Tell channels to terminate
+    [genserver:stop(list_to_atom(Channel)) || Channel <- St#server_st.channels],
     {reply, ok, []};
 
 % Catch-all for any unhandled requests
 handle(St, _Data) ->
     {reply, {error, not_implemented, "Server does not handle this command"}, St} .
-
 
