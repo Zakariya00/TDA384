@@ -42,8 +42,10 @@ handle(St, {message_send, Client, Nick, Message}) ->
   case lists:member(Client, St#channel_st.clients) of
 
     true ->
-      [Receiver!{request, self(), make_ref(), {message_receive, St#channel_st.channel, Nick, Message}} ||
-                       Receiver <- lists:delete(Client, St#channel_st.clients)],
+      [spawn(
+         fun () ->
+           genserver:request(Receiver, {message_receive, St#channel_st.channel, Nick, Message}) end) ||
+             Receiver <- lists:delete(Client, St#channel_st.clients)],
       {reply, ok, St};
 
     false ->
