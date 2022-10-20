@@ -83,6 +83,8 @@ public class ForkJoinSolver
 
     private List<Integer> parallelSearch() {
         List<Integer> result = null;
+        if (visited.contains(start)) return result;
+
         int player = maze.newPlayer(start); // one player active on the maze at start
         frontier.push(start); // start with start node
 
@@ -114,7 +116,6 @@ public class ForkJoinSolver
 
         // all nodes explored, no goal found
         result = forkJoin();
-        //return null;
         return result;
     }
 
