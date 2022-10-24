@@ -1,4 +1,4 @@
-/*import TSim.CommandException;
+import TSim.CommandException;
 import TSim.SensorEvent;
 import TSim.TSimInterface;
 
@@ -291,5 +291,5 @@ public class Train extends Thread {
     }
 }
 
- */
+ 
 
